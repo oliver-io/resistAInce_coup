@@ -26,6 +26,10 @@ Currently, the flow is pretty simple, made up from a few different chains of Ope
 # Does it work?
 Decide for yourself!  Keep reading for instructions on how to watch the wheelings-and-dealings of these virtual folks.
 
+Here's a little snippet of some output -- it isn't perfect, but shows each character behaving with a procedurally-generated set of qualities (aggression, passiveness, speech traits and proclivities to make certain kinds of jokes, etc.):
+
+![img.png](./assets/gameplay.png)
+
 # How to Run
 - All instructions henceforth are for Linux.  
 - If you're on a 'mac, you're probably lucky and can pretend I didn't say Linux.
