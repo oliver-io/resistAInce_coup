@@ -28,6 +28,8 @@ Decide for yourself!  Keep reading for instructions on how to watch the wheeling
 
 Here's a little snippet of some output -- it isn't perfect, but shows each character behaving with a procedurally-generated set of qualities (aggression, passiveness, speech traits and proclivities to make certain kinds of jokes, etc.):
 
+Did I cherrypick this example?  I dunno, I ran one game and snapped the best example I could find within it.
+
 ![img.png](./assets/gameplay.png)
 
 # How to Run
