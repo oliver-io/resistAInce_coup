@@ -11,6 +11,7 @@ from src.models.action import ActionType
 
 openai_api_key = os.getenv('OPENAI_API_KEY')
 
+
 class MyConfig:
     validate_assignment = False
 
@@ -139,13 +140,28 @@ If you cannot decide on a RATIONALE, you should respond with "ERROR: ..." with s
     def extract_choice(self, game_analysis: str, allowed_actions: List[str], rationale: str,
                        last_dialogue: Optional[List[str]] = None) -> Tuple[str, ActionType, Optional[str]]:
         response = self.dialoguer.invoke({
-                                             "input": f"```DETAILED_ANALYSIS\r\n{game_analysis}```\r\n\r\n```LEGAL_ACTIONS\r\n{allowed_actions}\r\n```\r\n\r\n```RATIONALE\r\n{rationale}\r\n```"})
+            "input": f"```DETAILED_ANALYSIS\r\n{game_analysis}```\r\n\r\n```LEGAL_ACTIONS\r\n{allowed_actions}\r\n```\r\n\r\n```RATIONALE\r\n{rationale}\r\n```"})
         return response['dialogue'], response['action'], response['target']
 
     def determine_reaction(self, game_analysis: str, allowed_actions: List[str], actor: str, conversation: List[str]) -> \
-    Tuple[str, ActionType, Optional[str]]:
+            Tuple[str, ActionType, Optional[str]]:
         reaction_rationale = self.reacter.invoke({
-                                                     "input": f"```DETAILED_ANALYSIS\r\n{game_analysis}```\r\n\r\n```LEGAL_ACTIONS\r\n{allowed_actions}\r\n```\r\n\r\n```ACTOR\r\n{actor}\r\n```\r\n\r\n```CONVERSATION\r\n{conversation}\r\n```"})
+            "input": f"""
+```DETAILED_ANALYSIS
+{game_analysis}
+```
+
+```LEGAL_ACTIONS
+{allowed_actions}
+```
+
+```ACTOR
+{actor}
+```
+
+```CONVERSATION
+{conversation}
+```"""})
         return self.extract_choice(game_analysis, allowed_actions, reaction_rationale)
 
 # analyzer = AIGameAgent()

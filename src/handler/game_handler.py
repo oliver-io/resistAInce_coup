@@ -305,23 +305,6 @@ class ResistanceCoupGameHandler:
         # We might need to aggregate all the round dialogue into a nice array
         players_without_current = self._players_without_player(self.current_player)
 
-        # # Get the analysis agent output
-        # _, deliberation_string, suggested_action = self._deliberation_phase(actor=self.current_player, audience=players_without_current, is_actor=True, action_being_suggested=None)
-        # if deliberation_string:
-        #     print_text(f"{self.current_player} says: {deliberation_string}", with_markup=True)
-        #
-        #
-        # # Discuss; we could do a loop here for depth=n or until there is a terminated sequence:
-        # retorter, retort_content, threatened_action = self._deliberation_phase(
-        #     actor=self.current_player,
-        #     audience=players_without_current,
-        #     is_actor=False,
-        #     action_being_suggested=suggested_action
-        # )
-        #
-        # if retort_content:
-        #     print_text(f"{retorter} says: {deliberation_string}", with_markup=True)
-
         # Choose an action to perform
         target_action, target_player, speech = self._action_phase(players_without_current)
 
