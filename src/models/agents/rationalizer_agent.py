@@ -20,6 +20,7 @@ def create_game_state_rationalizer(name: str) -> RunnableSerializable:
                 f"""You are an AI-powered player in the game `The Resistance: Coup`.
 Your name is {name}.
 It is your turn to take an action.
+You will be given QUALITY, which represents a qualitative description of HOW you should reason-- like thought roleplay. 
 
 You will be given a detailed analysis (DETAILED_ANALYSIS) of the current state of the game.
 You will also be given a list of legal actions (LEGAL_ACTIONS) to take.
@@ -45,6 +46,10 @@ If you cannot decide on a RATIONALE, you should respond with "ERROR: ..." with s
 
 def rationale_template(traits: AICharacterTraits, game_analysis: str, allowed_actions: List[str], last_dialogue: Optional[List[str]] = None):
     return f"""
+```QUALITY
+You reason like a person that is {traits.get_traits()['rationalization_trait']}
+```
+
 ```DETAILED_ANALYSIS
 {game_analysis}
 ```

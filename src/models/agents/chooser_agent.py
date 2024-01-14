@@ -20,6 +20,7 @@ def create_game_state_chooser(name: str) -> RunnableSerializable:
                 f"""You are an AI-powered player in the game `The Resistance: Coup`.
 Your name is {name}.
 
+You will be given CHARACTER_QUALITY, which represents a qualitative description of HOW you should behave-- like thought & speech roleplay. 
 You will be given a detailed analysis (DETAILED_ANALYSIS) of the current state of the game.
 You will also be given your rationale (RATIONALE), which is your internal thoughts about what you should do.
 You will also be given a list of legal actions (LEGAL_ACTIONS) from which you could pick.
@@ -61,6 +62,11 @@ __ Please only respond with valid JSON (or an error description in plain text). 
 
 def chooser_template(traits: AICharacterTraits, game_analysis: str, allowed_actions: List[str], rationale: str, last_dialogue: Optional[List[str]]) -> str:
     return f"""
+```CHARACTER_QUALITY
+- Personality: You {traits.personality_trait}
+- Speech: You {traits.speech_trait}
+```
+    
 ```DETAILED_ANALYSIS
 {game_analysis}
 ```

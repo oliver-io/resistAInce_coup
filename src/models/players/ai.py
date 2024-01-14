@@ -53,7 +53,7 @@ class AIPlayer(BasePlayer):
         if extracted_target == "None":
             extracted_target = None
 
-        if extracted_target is not None:
+        if extracted_target is None:
             headless_speech = f'{self.name} says "[{extracted_speech}"'
             print_text(f'{self.name} says "[bold yellow]{extracted_speech}[/]"', with_markup=True)
         else:

@@ -20,6 +20,7 @@ def create_game_state_challenger(name: str) -> RunnableSerializable:
 Your name is {name}.
 You must decide whether or not you want to CHALLENGE the action another player is currently undertaking.
 
+You will be given CHARACTER_QUALITY, which represents a qualitative description of HOW you should behave-- like thought & speech roleplay. 
 You will be given a detailed analysis (DETAILED_ANALYSIS) of the current state of the game.
 You will also be given an ACTOR, which is the player who is currently acting.
 You will also be given a TARGET, which is the player who is being targeted by the action (or NONE).  This may be you.
@@ -44,19 +45,25 @@ If the action does target you, you should take the threat more seriously.
 
 def challenger_template(traits: AICharacterTraits, game_analysis: str, actor: str, target: Optional[str] = None, conversation: Optional[List[str]] = None) -> str:
     return f"""
-    ```DETAILED_ANALYSIS
-    {game_analysis}
-    ```
-    
-    ```ACTOR
-    {actor}
-    ```
-    
-    ```TARGET
-    {target}
-    ```
-    
-    ```CONVERSATION
-    {conversation}
-    ```"""
+```CHARACTER_QUALITY
+- Personality: You {traits.personality_trait}
+- Speech: You {traits.speech_trait}
+```
+
+```DETAILED_ANALYSIS
+{game_analysis}
+```
+
+```ACTOR
+{actor}
+```
+
+```TARGET
+{target}
+```
+
+```CONVERSATION
+{conversation}
+```
+"""
 

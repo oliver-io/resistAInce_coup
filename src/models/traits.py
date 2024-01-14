@@ -116,7 +116,11 @@ class MyConfig:
 
 @dataclass(config=MyConfig)
 class AICharacterTraits:
-    def __init__(self):
+    rationalization_trait: str = None
+    personality_trait: str = None
+    speech_trait: str = None
+    chattiness: float = None
+    def __post_init__(self):
         self.rationalization_trait = random.choice(rationalization_traits)
         self.personality_trait = random.choice(personality_traits)
         self.speech_trait = random.choice(speech_traits)
