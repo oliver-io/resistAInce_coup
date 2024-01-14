@@ -24,25 +24,20 @@ class AIPlayer(BasePlayer):
 
         print_text(f"[bold magenta]{self}[/] is thinking about their move...", with_markup=True)
 
-        # print("ENGAGING ANALYSIS AGENT")
         analysis = self.ai_agent.analyze_state(state, last_round_dialogue)
-        # print("ANALYSIS AGENT COMPLETE")
-        # print(analysis)
 
-        # print("ENGAGING RATIONALIZER AGENT")
         rationale = self.ai_agent.create_rationale(
             analysis, [action.action_type for action in available_actions]
         )
-        # print("ANALYSIS RATIONALIZER COMPLETE")
+
         print_text(f'{self.name} thinks "[bold cyan]{rationale}[/]"', with_markup=True)
 
-        # print("ENGAGING EXTRACTION AGENT")
         extracted_speech, extracted_action, extracted_target = self.ai_agent.extract_choice(
             analysis, [action.action_type for action in available_actions], rationale
         )
-        # print("ANALYSIS SPEECH COMPLETE")
-        # print(f"Extracted action & target: {extracted_action}, {extracted_target}")
 
+
+        # Which (if any) action matches the model output?
         chosen_action: Union[Action, None] = None
         for action in available_actions:
             if action.action_type == extracted_action:
@@ -51,7 +46,12 @@ class AIPlayer(BasePlayer):
         if chosen_action is None:
             raise RuntimeError("The agent did not choose a valid action")
 
+        # Let's spare OpenAI the parsing of markup in speech:
         headless_speech: str = ""
+
+        # Which (if any) target matches the model output?\
+        if extracted_target == "None":
+            extracted_target = None
 
         if extracted_target is not None:
             headless_speech = f'{self.name} says "[{extracted_speech}"'
