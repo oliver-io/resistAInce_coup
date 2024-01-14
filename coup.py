@@ -40,7 +40,7 @@ def main():
     panel = Panel(
         text,
         title=":sleuth_or_spy:  [grey46]The Resistance: [hot_pink3 bold]Coup",
-        subtitle="[plum1]By Dirk Brand",
+        subtitle="[plum1]By Dirk Brand[/] [grey46](and to a lesser extent, Oliver Carrillo)[/]",
     )
     console.print(panel)
 

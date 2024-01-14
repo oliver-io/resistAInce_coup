@@ -9,10 +9,10 @@ from src.models.players.human import BasePlayer
 
 
 def generate_state_panel(
-        deck: list[Card],
-        treasury_coins: int,
-        current_player: BasePlayer,
-        discards: list[str],
+    deck: list[Card],
+    treasury_coins: int,
+    current_player: BasePlayer,
+    discards: list[str],
 ) -> Panel:
     """Generate a panel showing some game information"""
     return Panel(
@@ -21,9 +21,9 @@ def generate_state_panel(
 
 :moneybag: Treasury: {treasury_coins} coins
 
-🗑️ Discard Pile: {discards}
-
 :person_tipping_hand: Current Player: [bold magenta]{current_player}
+
+Discards: {discards}
 
 """,
         width=50,

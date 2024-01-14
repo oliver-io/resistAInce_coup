@@ -4,7 +4,7 @@ from typing import List, Optional, Tuple, Union
 
 import names
 from rich.console import Console
-from src.models.agents.ai_agent import AIGameAgent
+from src.models.agents.ai_orchestrator import AIGameAgent
 
 from src.models.action import Action, ActionType, CounterAction, get_counter_action
 from src.models.card import Card, build_deck
@@ -29,7 +29,6 @@ class ChallengeResult(Enum):
     challenge_succeeded = 2
 
 
-
 class ResistanceCoupGameHandler:
     _players: List[BasePlayer] = []
     _current_player_index = 0
@@ -37,6 +36,8 @@ class ResistanceCoupGameHandler:
     _discard: List[str] = []
     _number_of_players: int = 0
     _treasury: int = 0
+    _current_round_dialogue: List[str] = []
+    _last_round_dialogue: List[str] = []
 
     def __init__(self, player_name: str, number_of_players: int):
         self._number_of_players = number_of_players
@@ -67,7 +68,9 @@ class ResistanceCoupGameHandler:
 
     def print_game_state(self) -> None:
         print_table(generate_players_table(self._players, self._current_player_index))
-        print_panel(generate_state_panel(self._deck, self._treasury, self.current_player, self._discard))
+        print_panel(
+            generate_state_panel(self._deck, self._treasury, self.current_player, self._discard)
+        )
 
     def _players_without_player(self, excluded_player: BasePlayer):
         players_copy = self._players.copy()
@@ -137,9 +140,13 @@ class ResistanceCoupGameHandler:
     def _determine_win_state(self) -> bool:
         return sum(player.is_active for player in self._players) == 1
 
-    def _build_headless_state(self, current_player: BasePlayer, other_players: list[BasePlayer]) -> str:
-        player_table_text = generate_players_table(self._players, self._current_player_index)
-        state_table_text = generate_state_panel(self._deck, self._treasury, self.current_player, self._discard)
+    def _build_headless_state(self, current_player: BasePlayer) -> str:
+        player_table_text = generate_players_table(
+            self._players, self._players.index(current_player)
+        )
+        state_table_text = generate_state_panel(
+            self._deck, self._treasury, current_player, self._discard
+        )
         console = Console()
         with console.capture() as capture:
             console.print(player_table_text)
@@ -148,38 +155,19 @@ class ResistanceCoupGameHandler:
         summary = f"```gamestate\n\n{str_output}```"
         return summary
 
-    def _action_phase(
-            self,
-            players_without_current: list[BasePlayer]
-    ) -> Tuple[Action, Optional[BasePlayer], Optional[str]]:
-        summary = self._build_headless_state(self._players[self._current_player_index], players_without_current)
-        target_action, target_player, speech = self.current_player.choose_action(players_without_current, summary)
-        # print_text(
-        #     build_action_report_string(
-        #         player=self.current_player, action=target_action, target_player=target_player
-        #     ),
-        #     with_markup=True,
-        # )
+    def _action_phase(self) -> Tuple[Action, Optional[BasePlayer], Optional[str]]:
+        summary = self._build_headless_state(self._players[self._current_player_index])
+        target_action, target_player, speech = self.current_player.choose_action(
+            self._players_without_player(self.current_player), summary, self._last_round_dialogue
+        )
+        print_text(
+            build_action_report_string(
+                player=self.current_player, action=target_action, target_player=target_player
+            ),
+            with_markup=True,
+        )
 
         return target_action, target_player, speech
-
-    def _deliberation_phase(
-            self,
-            actor: BasePlayer,
-            audience: list[BasePlayer],
-            is_actor: bool,
-            action_being_suggested: Optional[Union[Action, CounterAction]]
-    ) -> Tuple[Optional[BasePlayer], Optional[str], Optional[CounterAction]]:
-        if is_actor:
-            deliberation_output, action_suggested = actor.maybe_deliberate()
-            return actor, deliberation_output, action_suggested
-        else:
-            for player in random.sample(audience, len(audience)):
-                if player.check_deliberate(self, None):
-                    if player.check_deliberate(actor, action_being_suggested):
-                        deliberation_output, action_suggested = player.maybe_deliberate()
-                        return player, deliberation_output, action_suggested
-        return None, None, None
 
     def _challenge_against_player_failed(
         self, player_being_challenged: BasePlayer, card: Card, challenger: BasePlayer
@@ -206,13 +194,37 @@ class ResistanceCoupGameHandler:
         other_players: list[BasePlayer],
         player_being_challenged: BasePlayer,
         action_being_challenged: Union[Action, CounterAction],
-    ) -> ChallengeResult:
-        # Every player can choose to challenge
-        for challenger in other_players:
-            should_challenge = challenger.determine_challenge(player_being_challenged)
+        dialogue_so_far: Optional[List[str]] = None,
+        action_target: BasePlayer = None,
+    ) -> Tuple[ChallengeResult, Optional[List[str]]]:
+        accumulated_speech = []
+
+        # Every player can choose to challenge, but let's start with the player targeted:
+        traversal_order: List[int] = []
+        if action_target is not None:
+            traversal_order = [self._players.index(action_target)]
+            for player in other_players:
+                if player is not action_target and player is not player_being_challenged:
+                    traversal_order.append(self._players.index(player))
+        else:
+            for player in other_players:
+                if player is not player_being_challenged:
+                    traversal_order.append(self._players.index(player))
+
+        for i in traversal_order:
+            challenger = self._players[i]
+            should_challenge, challenge_speech = challenger.determine_challenge(
+                player_being_challenged,
+                action_target,
+                action_being_challenged,
+                self._build_headless_state(challenger),
+                dialogue_so_far,
+            )
+            if challenge_speech is not None:
+                accumulated_speech.append(challenge_speech)
+
             if should_challenge:
-                if challenger.is_ai:
-                    print_text(f"{challenger} is challenging {player_being_challenged}!")
+                print_text(f"{challenger} is challenging {player_being_challenged}!")
                 # Player being challenged has the card
                 if card := player_being_challenged.find_card(
                     action_being_challenged.associated_card_type
@@ -222,15 +234,15 @@ class ResistanceCoupGameHandler:
                         card=card,
                         challenger=challenger,
                     )
-                    return ChallengeResult.challenge_failed
+                    return ChallengeResult.challenge_failed, accumulated_speech
 
                 # Player being challenged bluffed
                 else:
                     self._challenge_against_player_succeeded(player_being_challenged)
-                    return ChallengeResult.challenge_succeeded
+                    return ChallengeResult.challenge_succeeded, accumulated_speech
 
         # No  challenge happened
-        return ChallengeResult.no_challenge
+        return ChallengeResult.no_challenge, None
 
     def _counter_phase(
         self, players_without_current: list[BasePlayer], target_action: Action
@@ -259,17 +271,17 @@ class ResistanceCoupGameHandler:
             case ActionType.income:
                 # Player gets 1 coin
                 self._take_coin_from_treasury(self.current_player, 1)
-                print_text(f"{self.current_player}'s coins are increased by 1")
+                print_text(f"{self.current_player} takes one coin from the treasury.")
             case ActionType.foreign_aid:
                 if not countered:
                     # Player gets 2 coin
                     self._take_coin_from_treasury(self.current_player, 2)
-                    print_text(f"{self.current_player}'s coins are increased by 2")
+                    print_text(f"{self.current_player}'s takes two coins from the treasury.")
             case ActionType.coup:
                 # Player pays 7 coin
                 self._give_coin_to_treasury(self.current_player, 7)
                 print_text(
-                    f"{self.current_player} pays 7 coins and performs the coup against {target_player}"
+                    f"{self.current_player} pays 7 coins and performs the coup against {target_player}!"
                 )
 
                 if target_player.cards:
@@ -278,7 +290,7 @@ class ResistanceCoupGameHandler:
             case ActionType.tax:
                 # Player gets 3 coins
                 self._take_coin_from_treasury(self.current_player, 3)
-                print_text(f"{self.current_player}'s coins are increased by 3")
+                print_text(f"{self.current_player}'s takes three coins from the treasury!")
             case ActionType.assassinate:
                 # Player pays 3 coin
                 self._give_coin_to_treasury(self.current_player, 3)
@@ -306,35 +318,24 @@ class ResistanceCoupGameHandler:
         players_without_current = self._players_without_player(self.current_player)
 
         # Choose an action to perform
-        target_action, target_player, speech = self._action_phase(players_without_current)
-
-        # Give the victim the chance to react first somehow:
-        if target_player is not None:
-            reaction_phase_result = target_player.ai_agent.determine_reaction(
-                target_player.ai_agent.analyze_state(
-                    self._build_headless_state(
-                        target_player,
-                        self._players_without_player(target_player)
-                    )
-                ),
-                ['Challenge', get_counter_action(target_action.action_type)],
-                target_action.action_type,
-                [speech]
-            )
+        target_action, target_player, speech = self._action_phase()
+        if speech is not None:
+            self._current_round_dialogue.append(speech)
 
         # Opportunity to challenge action
         challenge_result = ChallengeResult.no_challenge
         if target_action.can_be_challenged:
-            challenge_result = self._challenge_phase(
+            challenge_result, challenge_speech = self._challenge_phase(
                 other_players=players_without_current,
                 player_being_challenged=self.current_player,
                 action_being_challenged=target_action,
+                dialogue_so_far=[speech],
+                action_target=target_player,
             )
 
-        countering_player:BasePlayer = None
-        counter_action:CounterAction = None
-        counter_action_bluff_called:bool = False
-        counter_action_bluff_revealed:bool = False
+            if challenge_speech is not None:
+                for speech in challenge_speech:
+                    self._current_round_dialogue.append(speech)
 
         if challenge_result == ChallengeResult.challenge_succeeded:
             # Challenge succeeded and the action does not take place
@@ -364,8 +365,12 @@ class ResistanceCoupGameHandler:
                         player_being_challenged=countering_player,
                         action_being_challenged=counter,
                     )
-                    counter_action_bluff_called = (counter_challenge_result != ChallengeResult.no_challenge)
-                    counter_action_bluff_revealed = counter_action_bluff_called and (counter_challenge_result == ChallengeResult.challenge_succeeded)
+                    counter_action_bluff_called = (
+                        counter_challenge_result != ChallengeResult.no_challenge
+                    )
+                    counter_action_bluff_revealed = counter_action_bluff_called and (
+                        counter_challenge_result == ChallengeResult.challenge_succeeded
+                    )
 
                 # Successfully countered and counter not challenged
                 if counter and counter_challenge_result in [
@@ -391,10 +396,9 @@ class ResistanceCoupGameHandler:
             )
             return True
 
-        # print_text(f"Historical state: {self._state_tracker.get_state_history()}")
-        # print_text(f"Current state: {self._state_tracker.get_current_state()}")
-
         self._next_player()
+        self._last_round_dialogue = self._current_round_dialogue
+        self._current_round_dialogue = []
 
         # No winner yet
         return False

@@ -41,9 +41,10 @@ sudo apt upgrade
 sudo apt install python3.11-venv
 
 # This not-so-optional and sets up:
-git clone https://github.com/oliver-io/resistAInce_coup game && cd "$_"
 python3.11 -m venv env
-source env/bin/activate
+echo "OPENAI_API_KEY=<insert your API key here>" >> .env
+git clone https://github.com/oliver-io/resistAInce_coup game && cd "$_"
+source ../env/bin/activate
 ```
 
 > Install Dependencies

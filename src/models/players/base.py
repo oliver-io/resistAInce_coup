@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import List, Optional, Tuple
-from src.models.agents.ai_agent import AIGameAgent
+from typing import List, Optional, Tuple, Union
+from src.models.agents.ai_orchestrator import AIGameAgent
 
 from pydantic import BaseModel
 
@@ -67,13 +67,23 @@ class BasePlayer(BaseModel, ABC):
 
     @abstractmethod
     def choose_action(
-        self, other_players: List["BasePlayer"], state: str
-    ) -> Tuple[Action, Optional["BasePlayer"]]:
+        self,
+        other_players: List["BasePlayer"],
+        state: str,
+        last_round_dialogue: Optional[List[str]] = None,
+    ) -> Tuple[Action, Optional["BasePlayer"], Optional[str]]:
         """Choose the next action to perform"""
         pass
 
     @abstractmethod
-    def determine_challenge(self, player: "BasePlayer") -> bool:
+    def determine_challenge(
+        self,
+        actor: "BasePlayer",
+        target_player: Union["BasePlayer", None],
+        action: Union[Action, CounterAction],
+        state: str,
+        dialogue_so_far: Optional[List[str]],
+    ) -> Tuple[bool, Optional[str]]:
         """Choose whether to challenge the current player"""
         pass
 
@@ -83,7 +93,7 @@ class BasePlayer(BaseModel, ABC):
         pass
 
     @abstractmethod
-    def remove_card(self) -> Card:
+    def remove_card(self) -> str:
         """Choose a card and remove it from your hand"""
         pass
 
