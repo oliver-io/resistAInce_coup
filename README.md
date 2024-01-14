@@ -1,111 +1,53 @@
-<br/>
-<p align="center">
-  <h3 align="center">The Resistance: Coup</h3>
+# Credit / Origins
+The entire game engine in this piece of code is taken from https://github.com/dirkbrnd/resistance_coup
 
-  <p align="center">
-    A text-based version of the popular party game!
-    <br/>
-    <br/>
-    <a href="https://github.com/dirkbrnd/resistance_coup/issues">Request Feature</a>
-  </p>
-</p>
+Credit where credit is due: to some wonderful dude in the gitlogs named **Dirk Brand** (-- and what a name).
 
-![Downloads](https://img.shields.io/github/downloads/dirkbrnd/resistance_coup/total) ![Contributors](https://img.shields.io/github/contributors/dirkbrnd/resistance_coup?color=dark-green) ![Issues](https://img.shields.io/github/issues/dirkbrnd/resistance_coup) ![License](https://img.shields.io/github/license/dirkbrnd/resistance_coup) 
+# What is this?
+Basically, I'm using LangChain as the brain of each player in the game and running it autonomously.  This means
+that the original human flow is mostly deprecated, and you get to watch the players go-at-it in cyberspace.
 
-## About The Project
-<p align="center">
-    <img src="assets/coup_game.png" alt="Coup Game" width="300"/>
-</p>
+# How work?
+Currently, the flow is pretty simple, made up from a few different chains of OpenAI conversations:
 
+![diagram](./assets/diagram.png)
 
-This is a terminal text-based version of [The Resistance: Coup](https://www.ultraboardgames.com/coup/game-rules.php#google_vignette). I suggest you make yourself familiar with the rules before playing!
+- Each player takes in the state of the board and forms an "analysis" which is a summary of the current game-state.  They might be fed past dialogue as part of this state.
+- Each "analysis" forms private intentions within the AI's model, which does not necessarily have to map to its decided action (for subterfuge and such).
+- Each "private intention" is fed into a model which decides on a public action, and public statements, which might be lies.
+- This speech is communicated to the other players, and then the process begins again!  In theory, the public statements of the AI will affect others' internal and public modes.
 
-In a nutshell:
+# Does it work?
+Decide for yourself!  Keep reading for instructions on how to watch the wheelings-and-dealings of these virtual folks.
 
-* You have some character cards representing government officials you have influence over.
-* You can perform actions to sabotage other players and reduce their influence (i.e. remove their cards)
-* The last person with any cards left is the winner!
+# How to Run
+- All instructions henceforth are for Linux.  
+- If you're on a 'mac, you're probably lucky and can pretend I didn't say Linux.
+- If you're on Windows, bless your heart.
 
-The main package to mention here is [Rich](https://github.com/Textualize/rich). It was instrumental in making it as pretty as possible on the terminal!
+> Installation of correct Python Version and Check Out Code Stuff
+```bash
+# optional for currentness:
+sudo apt update
+sudo apt upgrade
 
-## Getting Started
+# Required if ya aren't already running >= 3.11
+sudo apt install python3.11-venv
 
-### Prerequisites
-
-* This project is built on Python 3.11.
-* The packages are maintained with [poetry](https://github.com/python-poetry/poetry).
-
-### Steps to get playing
-
-1. Clone the repo
-
-```sh
-git clone https://github.com/dirkbrnd/resistance_coup.git
+# This not-so-optional and sets up:
+git clone https://github.com/oliver-io/resistAInce_coup game && cd "$_"
+python3.11 -m venv env
+source env/bin/activate
 ```
 
-2. Install the game
-
-```sh
+> Install Dependencies
+```bash
 poetry install
 ```
 
-3. Launch!
-
-```sh
+> Run the Game
+```bash
 python coup.py
 ```
 
-## Usage
-
-![Screen Shot](assets/game_state.png)
-
-* When the game starts it will ask your name.
-* You will play against 4 other AI players.
-* The game will continue until there is a winner (or if you lose you can force a restart...)
-* You can play again after winning/losing.
-
-## Roadmap
-
-See the [open issues](https://github.com/dirkbrnd/resistance_coup/issues) for a list of proposed features (and known issues).
-
-## Contributing
-
-Contributions are what make the open source community such an amazing place to be learn, inspire, and create. Any contributions you make are **greatly appreciated**.
-* If you have suggestions for adding or removing projects, feel free to [open an issue](https://github.com/dirkbrnd/resistance_coup/issues/new) to discuss it, or directly create a pull request.
-* Please make sure you check your spelling and grammar.
-* Create individual PR for each suggestion.
-
-### Local setup for development
-After you have cloned the repo:
-
-1. Install the game
-
-```sh
-poetry install
-```
-
-2. Set up the pre-commit hooks
-
-```sh
-pre-commit install
-```
-
-3. Make your changes on a branch and create a PR!
-
-
-### Creating A Pull Request
-
-1. Clone the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## License
-
-Distributed under the MIT License. See [LICENSE](https://github.com/dirkbrnd/Resistance Coup/blob/main/LICENSE.md) for more information.
-
-## Acknowledgements
-
-* [Aaron Yuan](https://www.linkedin.com/in/aaron-yuan-776312a5/) for the inspiration!
-
+:rocket:
