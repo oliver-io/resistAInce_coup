@@ -17,6 +17,12 @@ Currently, the flow is pretty simple, made up from a few different chains of Ope
 - Each "private intention" is fed into a model which decides on a public action, and public statements, which might be lies.
 - This speech is communicated to the other players, and then the process begins again!  In theory, the public statements of the AI will affect others' internal and public modes.
 
+# What's incoming / not yet implemented / a known defect?
+- Right now, each model is not differentiated from any others.  I'll be leveraging some procedural generation to make each model unique, but I'll go for a simple prototype first.
+- The models will probably engage in some turny-style conversation, but I would like to figure out a neat way to get them naturally conversing, not just rotating chances to speak.
+- We'll see how good they are at lying.  I anticipate this is going to need some tuning.
+- Unknown Unknowns
+
 # Does it work?
 Decide for yourself!  Keep reading for instructions on how to watch the wheelings-and-dealings of these virtual folks.
 
