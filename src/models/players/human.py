@@ -77,7 +77,7 @@ class HumanPlayer(BasePlayer):
         challenge = print_confirm(f"Do you wish to counter {str(player)}?")
         return challenge
 
-    def remove_card(self) -> None:
+    def remove_card(self) -> str:
         """Choose a card and remove it from your hand"""
 
         print_text("Unfortunately you have to discard a card...")
@@ -103,6 +103,8 @@ class HumanPlayer(BasePlayer):
         print_texts(
             f"{self} discarded their ", (f"{discarded_card}", discarded_card.style), " card"
         )
+
+        return f"{discarded_card}"
 
     def choose_exchange_cards(self, exchange_cards: list[Card]) -> Tuple[Card, Card]:
         """Perform the exchange action. Pick which 2 cards to send back to the deck"""

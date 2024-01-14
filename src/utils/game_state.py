@@ -9,7 +9,10 @@ from src.models.players.human import BasePlayer
 
 
 def generate_state_panel(
-    deck: list[Card], treasury_coins: int, current_player: BasePlayer
+        deck: list[Card],
+        treasury_coins: int,
+        current_player: BasePlayer,
+        discards: list[str],
 ) -> Panel:
     """Generate a panel showing some game information"""
     return Panel(
@@ -18,7 +21,10 @@ def generate_state_panel(
 
 :moneybag: Treasury: {treasury_coins} coins
 
+🗑️ Discard Pile: {discards}
+
 :person_tipping_hand: Current Player: [bold magenta]{current_player}
+
 """,
         width=50,
     )
@@ -42,13 +48,13 @@ def generate_players_table(players: List[BasePlayer], current_player_index: int)
         card_text = Text()
         if player.is_active:
             for card in player.cards:
-                if player.is_ai:
-                    card_text.append("<Secret...> ")
-                else:
+                if ind == current_player_index:
                     card_text.append(
                         str(card), style=f"{card.foreground_color} on {card.background_color}"
                     )
                     card_text.append(" ")
+                else:
+                    card_text.append("<Secret...> ")
         else:
             card_text = Text.from_markup(":skull:")
 
