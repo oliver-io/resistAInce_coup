@@ -11,7 +11,7 @@ from src.utils.print import print_text, print_texts
 class AIPlayer(BasePlayer):
     is_ai: bool = True
 
-    def choose_action(self, other_players: List[BasePlayer]) -> Tuple[Action, Optional[BasePlayer]]:
+    def choose_action(self, other_players: List[BasePlayer], state: str) -> Tuple[Action, Optional[BasePlayer]]:
         """Choose the next action to perform"""
 
         available_actions = self.available_actions()
@@ -37,7 +37,7 @@ class AIPlayer(BasePlayer):
             if target_action.requires_target:
                 target_player = random.choice(other_players)
 
-        return target_action, target_player
+        return target_action, target_player, None
 
     def determine_challenge(self, player: BasePlayer) -> bool:
         """Choose whether to challenge the current player"""

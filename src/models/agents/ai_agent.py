@@ -11,16 +11,15 @@ from src.models.action import ActionType
 
 openai_api_key = os.getenv('OPENAI_API_KEY')
 
-
 class MyConfig:
-    validate_assignment = True
+    validate_assignment = False
 
 
 @dataclass(config=MyConfig)
-class GameStateAnalyzer:
+class AIGameAgent:
     analyzer: RunnableSerializable = None  # Set default to None
     rationalizer: RunnableSerializable = None  # Set default to None
-    reactor: RunnableSerializable = None  # Set default to None
+    reacter: RunnableSerializable = None  # Set default to None
     dialoguer: RunnableSerializable = None  # Set default to None
     name: str = "None"
 
@@ -47,8 +46,10 @@ I would like for you to respond with a detailed analysis of the board.  This sho
 """),
             ("user", "{input}")
         ])
+
         self.analyzer = analyzer_prompt | ChatOpenAI(
-            openai_api_key=openai_api_key) | StrOutputParser()
+            openai_api_key=f"{openai_api_key}"
+        ) | StrOutputParser()
 
         rationalizer_prompt = ChatPromptTemplate.from_messages([
             ("system", f"""You are an AI-powered player in the game `The Resistance: Coup`.
@@ -101,7 +102,7 @@ If you cannot decide on a DIALOGUE, you should respond with "ERROR: ..." with so
             openai_api_key=openai_api_key
         ) | output_parser  # | ActionDialogueExtractor
 
-        reactor_prompt = ChatPromptTemplate.from_messages([
+        reacter_prompt = ChatPromptTemplate.from_messages([
             ("system", f"""You are an AI-powered player in the game `The Resistance: Coup`.
 Your name is {self.name}.
 You must decide whether or not you want to react to the action another player is currently undertaking.
@@ -121,7 +122,7 @@ If you cannot decide on a RATIONALE, you should respond with "ERROR: ..." with s
             ("user", "{input}")
         ])
 
-        self.reactor = reactor_prompt | ChatOpenAI(
+        self.reacter = reacter_prompt | ChatOpenAI(
             openai_api_key=openai_api_key
         ) | StrOutputParser()
 
@@ -143,11 +144,11 @@ If you cannot decide on a RATIONALE, you should respond with "ERROR: ..." with s
 
     def determine_reaction(self, game_analysis: str, allowed_actions: List[str], actor: str, conversation: List[str]) -> \
     Tuple[str, ActionType, Optional[str]]:
-        reaction_rationale = self.reactor.invoke({
+        reaction_rationale = self.reacter.invoke({
                                                      "input": f"```DETAILED_ANALYSIS\r\n{game_analysis}```\r\n\r\n```LEGAL_ACTIONS\r\n{allowed_actions}\r\n```\r\n\r\n```ACTOR\r\n{actor}\r\n```\r\n\r\n```CONVERSATION\r\n{conversation}\r\n```"})
         return self.extract_choice(game_analysis, allowed_actions, reaction_rationale)
 
-# analyzer = GameStateAnalyzer()
+# analyzer = AIGameAgent()
 # game_state_summary = "Player A claimed Duke, Player B challenged and lost. Treasury contains 8 coins."
 # analysis = analyzer.analyze_state(game_state_summary)
 # print(analysis)

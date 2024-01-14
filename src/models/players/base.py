@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import List, Optional, Tuple
+from src.models.agents.ai_agent import AIGameAgent
 
 from pydantic import BaseModel
 
@@ -20,6 +21,7 @@ from src.models.card import Card, CardType
 
 class BasePlayer(BaseModel, ABC):
     name: str
+    ai_agent: AIGameAgent
     coins: int = 0
     cards: List[Card] = []
     is_ai: bool
@@ -65,7 +67,7 @@ class BasePlayer(BaseModel, ABC):
 
     @abstractmethod
     def choose_action(
-        self, other_players: List["BasePlayer"]
+        self, other_players: List["BasePlayer"], state: str
     ) -> Tuple[Action, Optional["BasePlayer"]]:
         """Choose the next action to perform"""
         pass
@@ -81,7 +83,7 @@ class BasePlayer(BaseModel, ABC):
         pass
 
     @abstractmethod
-    def remove_card(self) -> None:
+    def remove_card(self) -> Card:
         """Choose a card and remove it from your hand"""
         pass
 

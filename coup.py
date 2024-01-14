@@ -1,5 +1,7 @@
-import sys
+from dotenv import load_dotenv
+load_dotenv()
 
+import sys
 from rich.panel import Panel
 from rich.text import Text
 
@@ -8,18 +10,10 @@ from src.utils.print import (
     console,
     print_blank,
     print_confirm,
-    print_prompt,
     print_text,
 )
-from dotenv import load_dotenv
-from pathlib import Path
-
-dotenv_path = Path('./env/.env')
-load_dotenv(dotenv_path=dotenv_path)
-
 
 console.clear()
-
 
 def main():
     text = Text(
@@ -50,11 +44,13 @@ def main():
     )
     console.print(panel)
 
-    console.print()
-    player_name = print_prompt("What is your name, player?")
-    handler = ResistanceCoupGameHandler(player_name, 5)
+    # Removing the human flow from this
+    # we could theoretically add back in later, but it's a lot of typing to talk to these 'bots
+    #console.print()
+    # player_name = print_prompt("What is your name, player?")
+    handler = ResistanceCoupGameHandler("There's no one steering this ship", 5)
 
-    console.print()
+    #console.print()
     game_ready = print_confirm("Ready to start?")
 
     # Play the game
