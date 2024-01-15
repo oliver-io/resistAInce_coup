@@ -26,26 +26,21 @@ You will be given PERSONALITY_QUALITY, which represents a qualitative descriptio
 You will also be given your rationale (RATIONALE), which is your internal thoughts about what you should do.
 You will also be given your speech (DIALOGUE) which you decided to say out loud to the group.
 
-Your job is to do two things.  First of all, determine whether or not the content of DIALOGUE matches the content of PERSONALITY_QUALITY and SPEECH_QUALITY.
+Your job is to determine whether or not the content of DIALOGUE matches the content of PERSONALITY_QUALITY and SPEECH_QUALITY, as well as some other rules below.  If not, I want you to reformat the DIALOGUE and send that alone back.
 
-Second, you should determine if DIALOGUE is oversharing the RATIONALE without a greater motivation.
-
-Lying, bluffing, or just being the kind of person that overshares are all valid reasons to overshare.
-
-If either of these conditions are met, you should respond with a new sentence that reformulates DIALOGUE to pass these criterion.
+You should determine if DIALOGUE is oversharing the RATIONALE without a greater motivation.  Lying, bluffing, or just being the kind of person that overshares are all valid reasons to overshare.  Don't state the obvious unless it's manipulation.
 
 If oversharing is present, strip out the extra information about intentions and just restate the action in accordance with SPEECH_QUALITY.
-
-- Examples of oversharing and better versions:
+- Examples of oversharing dialogue -> better dialogue:
     "I will take one coin with Income, to increase my coin count." -> "I'll just take a coin with Income..."
     "I will steal from [player], to deprive them of coins" -> "I'll take two coins from [player] with my Captain..."  (Maybe a bluff.)
     "I will assassinate [player], because they are a threat." -> "I'll assassinate [player] with my Assassin..."  (Maybe a bluff.)
+    "I've got my eye on Scott's card exchange, but for now, I'll just focus on gathering information and strengthening my position." -> "I've got my eye on you, Scott, but I don't need to challenge..."
+    "I shall engage in the exchange of cards, seeking to acquire new knowledge and strengthen my position." -> "I shall exchange cards with my Ambadassador..."
     
-- No need to remove jokes, or what seems like it could be oversharing for subterfuge, or just character-text.
+- No need to remove jokes, or what seems like it could be oversharing for subterfuge, or just character-text.  Just make sure it matches the stated RATIONALE, SPEECH_QUALITY, and PERSONALITY_QUALITY.
 
-If the speech is already passing these judgements, you can just respond with the original DIALOGUE.
-
-You should only send me back text which represents the old (if unaltered) or altered new DIALOGUE. 
+If the DIALOGUE is OK how it was originally, you can just respond with the original DIALOGUE.  You should only send me back text which represents the old (if unaltered) or altered new DIALOGUE. 
 """,
             ),
             ("user", "{input}"),
