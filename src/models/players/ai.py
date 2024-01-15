@@ -6,6 +6,7 @@ from src.models.action import Action, get_counter_action, CounterAction
 from src.models.card import Card
 from src.models.players.base import BasePlayer
 from src.utils.print import print_text, print_texts
+from src.utils.logger import app_logger
 
 CHALLENGE_CONSTANT = 0.5
 
@@ -32,10 +33,9 @@ class AIPlayer(BasePlayer):
 
         print_text(f'{self.name} thinks "[bold cyan]{rationale}[/]"', with_markup=True)
 
-        extracted_speech, extracted_action, extracted_target = self.ai_agent.extract_choice(
+        extracted_action, extracted_speech, extracted_target = self.ai_agent.extract_choice(
             analysis, [action.action_type for action in available_actions], rationale
         )
-
 
         # Which (if any) action matches the model output?
         chosen_action: Union[Action, None] = None
@@ -44,6 +44,17 @@ class AIPlayer(BasePlayer):
                 chosen_action = action
 
         if chosen_action is None:
+            available_actions_str = ", ".join([action.action_type for action in available_actions])
+            app_logger.debug(f"Available actions: {available_actions_str}")
+            app_logger.debug(f"Extracted action: {extracted_action}")
+            app_logger.debug(f"Extracted target: {extracted_target}")
+            app_logger.debug(f"Extracted speech: {extracted_speech}")
+            app_logger.error(
+                msg=f"Bad action choice {chosen_action} for available actions",
+                extracted_speech=extracted_speech,
+                extracted_action=extracted_action,
+                extracted_target=extracted_target
+            )
             raise RuntimeError("The agent did not choose a valid action")
 
         # Let's spare OpenAI the parsing of markup in speech:
@@ -87,7 +98,7 @@ class AIPlayer(BasePlayer):
     def determine_challenge(
         self,
         actor: BasePlayer,
-        target_player: BasePlayer,
+        target_player: Optional["BasePlayer"],
         action: Union[Action, CounterAction],
         state: str,
         dialogue_so_far: Optional[List[str]],
@@ -107,7 +118,7 @@ class AIPlayer(BasePlayer):
             )
         analysis = self.ai_agent.analyze_state(state, dialogue_so_far)
 
-        dialogue, action, _ = self.ai_agent.determine_challenge_reaction(
+        action, dialogue, maybe_target = self.ai_agent.determine_challenge_reaction(
             analysis,
             actor.name,
             target_player.name if target_player is not None else None,
@@ -119,12 +130,45 @@ class AIPlayer(BasePlayer):
 
         return (action == "Challenge"), headless_speech
 
-    def determine_counter(self, player: BasePlayer) -> bool:
-        """Choose whether to counter the current player's action"""
+    def determine_counter(
+            self,
+            actor: BasePlayer,
+            target_player: Optional["BasePlayer"],
+            action: Action,
+            state: str,
+            dialogue_so_far: Optional[List[str]],
+    ) -> Tuple[bool, Optional[str]]:
+        """Choose whether to counter/block the current player's action"""
+        if target_player is None:
+            # Todo: chat?
+            print_text(
+                f"[bold magenta]{self}[/] is considering blocking {actor}'s use of {action}...",
+                with_markup=True,
+            )
+        else:
+            target_string = target_player.name if target_player is not self else "themselves"
+            print_text(
+                f"[bold magenta]{self}[/] is considering blocking {actor}'s use of {action} against {target_string}...",
+                with_markup=True,
+            )
+        analysis = self.ai_agent.analyze_state(state, dialogue_so_far)
 
-        # TODO: I think we can actually just use the "challenge" model with a little bit of tweaking
-        # 10% chance of countering
-        return random.randint(0, 9) == 0
+        action, dialogue, _ = self.ai_agent.determine_block_reaction(
+            game_analysis=analysis,
+            actor=actor.name,
+            cards=[f"{card}" for card in enumerate(self.cards)],
+            target=target_player.name if target_player is not None else None,
+            conversation=dialogue_so_far,
+        )
+
+        headless_speech = f'{self.name} says "{dialogue}"'
+        print_text(f'{self.name} says "[bold yellow]{dialogue}[/]"', with_markup=True)
+
+        return (action == "Block"), headless_speech
+        #
+        # # TODO: I think we can actually just use the "challenge" model with a little bit of tweaking
+        # # 10% chance of countering
+        # return random.randint(0, 9) == 0
 
     def remove_card(self) -> str:
         """Choose a card and remove it from your hand"""

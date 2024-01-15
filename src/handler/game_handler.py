@@ -174,17 +174,25 @@ class ResistanceCoupGameHandler:
     ):
         # Player being challenged reveals the card
         print_texts(f"{player_being_challenged} reveals their ", (f"{card}", card.style), " card!")
-        print_text(f"{challenger} loses the challenge")
+        self._current_round_dialogue.append(f"{player_being_challenged} reveals their {card} card!")
+
+        message = f"{challenger} loses the challenge"
+        print_text(message)
+        self._current_round_dialogue.append(message)
 
         # Challenge player loses influence (chooses a card to remove)
         self._discard.append(challenger.remove_card())
 
         # Player puts card into the deck and gets a new card
-        print_text(f"{player_being_challenged} gets a new card")
+        message = f"{player_being_challenged} gets a new card"
+        print_text(message)
+        self._current_round_dialogue.append(message)
         self._swap_card(player_being_challenged, card)
 
     def _challenge_against_player_succeeded(self, player_being_challenged: BasePlayer):
-        print_text(f"{player_being_challenged} bluffed! They do not have the required card!")
+        message = f"{player_being_challenged} was caught bluffing! They do not have the required card!";
+        print_text(message)
+        self._current_round_dialogue.append(message)
 
         # Player being challenged loses influence (chooses a card to remove)
         self._discard.append(player_being_challenged.remove_card())
@@ -245,11 +253,17 @@ class ResistanceCoupGameHandler:
         return ChallengeResult.no_challenge, None
 
     def _counter_phase(
-        self, players_without_current: list[BasePlayer], target_action: Action
+        self, players_without_current: list[BasePlayer], target_action: Action, target_player: Optional[BasePlayer] = None
     ) -> Tuple[Optional[BasePlayer], Optional[CounterAction]]:
         # Every player can choose to counter
         for countering_player in players_without_current:
-            should_counter = countering_player.determine_counter(self.current_player)
+            should_counter = countering_player.determine_counter(
+                actor=self.current_player,
+                target_player=target_player,
+                action=target_action,
+                state=self._build_headless_state(countering_player),
+                dialogue_so_far=self._current_round_dialogue
+            )
             if should_counter:
                 target_counter = get_counter_action(target_action.action_type)
                 print_text(
@@ -351,7 +365,7 @@ class ResistanceCoupGameHandler:
             # Opportunity to counter
             else:
                 countering_player, counter = self._counter_phase(
-                    players_without_current, target_action
+                    players_without_current, target_action, target_player
                 )
 
                 # Opportunity to challenge counter

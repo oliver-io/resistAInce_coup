@@ -88,7 +88,14 @@ class BasePlayer(BaseModel, ABC):
         pass
 
     @abstractmethod
-    def determine_counter(self, player: "BasePlayer") -> CounterAction:
+    def determine_counter(
+            self,
+            actor: "BasePlayer",
+            target_player: Optional["BasePlayer"],
+            action: Union[Action, CounterAction],
+            state: str,
+            dialogue_so_far: Optional[List[str]],
+    ) -> Tuple[bool, Optional[str]]:
         """Choose whether to counter the current player's action"""
         pass
 

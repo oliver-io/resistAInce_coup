@@ -11,29 +11,32 @@ from src.models.traits import AICharacterTraits
 openai_api_key = os.getenv("OPENAI_API_KEY")
 
 # a function which returns a RunnableSerializable given a name parameter:
-def create_game_state_challenger(name: str) -> RunnableSerializable:
+def create_game_state_blocker(name: str) -> RunnableSerializable:
     prompt = ChatPromptTemplate.from_messages(
         [
             (
                 "system",
                 f"""You are an AI-powered player in the game `The Resistance: Coup`.
 Your name is {name}.
-You must decide whether or not you want to CHALLENGE the action another player is currently undertaking.
+You must decide whether or not you want to BLOCK and counteract the action another player is currently undertaking.
 
 You will be given CHARACTER_QUALITY, which represents a qualitative description of HOW you should behave-- like thought & speech roleplay. 
 You will be given a detailed analysis (DETAILED_ANALYSIS) of the current state of the game.
 You will also be given an ACTOR, which is the player who is currently acting.
 You will also be given a TARGET, which is the player who is being targeted by the action (or NONE).  This may be you.
 You will also be given a CONVERSATION, which is a dialogue chain that has occurred between you and the other players during this round.
+You will lastly be given CARDS, which are the cards you hold in your hand.
 
-You should RESPOND with text containing your internal dialogue, which should be internal dialogue as thoughts, which is a justification for whether it is advantageous, likely, etc. that a challenge should be proferred.
+You should RESPOND with text containing your internal dialogue, which should be internal dialogue as thoughts, which is a justification for whether it is advantageous, likely, etc. that a BLOCK should be proferred.
+
+Remember that it is relevant which cards you hold: if you have a card that can BLOCK the action being attempted, you should be more likely to BLOCK.
+
+You can also bluff, pretending to BLOCK even though you do not have that card.  But another player may "CHALLENGE" your bluff, and if you are caught, you will lose a card.  This is most dangerous if you have only one card.
+
+You should also be more likely to BLOCK (including bluffs) when the action directly targets you instead of another player.  Take this targeted threat more seriously.
+
+You should be more hesitant to block, (especially bluff) if you have fewer cards, or if the action does not directly affect you (or put you at risk by proxy).
     
-If you do not want to CHALLENGE, it is ok to plan to use your cards to block or bluff the bluff a counter-action in a later phase.
-
-You should be more hesitant to challenge if you have fewer cards, or if the action does not directly affect you (or put you at risk by proxy).
-
-If the action does target you, you should take the threat more seriously.
-
 If you cannot decide on a rationale, you should respond with "ERROR: ..." with some explanation for why you cannot create a RATIONALE.
 """,
             ),
@@ -45,7 +48,7 @@ If you cannot decide on a rationale, you should respond with "ERROR: ..." with s
             prompt | ChatOpenAI(openai_api_key=f"{openai_api_key}") | StrOutputParser()
     )
 
-def challenger_template(traits: AICharacterTraits, game_analysis: str, actor: str, target: Optional[str] = None, conversation: Optional[List[str]] = None) -> str:
+def blocker_template(traits: AICharacterTraits, game_analysis: str, actor: str, cards: List[str], target: Optional[str] = None, conversation: Optional[List[str]] = None) -> str:
     return f"""
 ```CHARACTER_QUALITY
 - Personality: You {traits.personality_trait}
@@ -67,5 +70,10 @@ def challenger_template(traits: AICharacterTraits, game_analysis: str, actor: st
 ```CONVERSATION
 {conversation}
 ```
+
+```CARDS
+{cards}
+```
+
 """
 

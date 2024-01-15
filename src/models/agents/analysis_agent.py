@@ -31,6 +31,9 @@ I would like for you to respond with a detailed analysis of the board.  This sho
  - An analysis of who is the greatest threat (to yourself) on the board, and what could be done to stop them
  - An analysis of who is a viable cooperator on the board, and how we might temporarily align with one another
  - Top immediate goal for your next turn, such as "get 1 more coin so that we can assassinate" or "get a Contessa card"
+ 
+Please remember these hints:
+    - "Income" is 1 coin, which is easy to confuse with "Tax", which is 3 coins and implies you hold a Duke
 """,
             ),
             ("user", "{input}"),
