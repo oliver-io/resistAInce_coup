@@ -1,3 +1,0 @@
-- make NPCs comment and feed them through the history
-- clean up debugging and log content
-- add procedural generation for NPCs' traits

@@ -1,14 +1,9 @@
-import os
-from typing import List, Optional
-
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnableSerializable
-from langchain_openai import ChatOpenAI
 
+from src.models.agents.llm_client_factory import create_llm
 from src.models.traits import AICharacterTraits
-
-openai_api_key = os.getenv("OPENAI_API_KEY")
 
 
 # a function which returns a RunnableSerializable given a name parameter:
@@ -20,7 +15,7 @@ def create_ai_speech_smoothing_agent(name: str) -> RunnableSerializable:
                 f"""You are an AI-powered player in the game `The Resistance: Coup`.
 Your name is {name}.
 
-You will be given ACTION, which is an action that is causing you to speak.  It might be a choice, but it could be a comment.
+You will be given ACTION, which is an action that is causing you to speak.  It might be a choice, but it could be a comment.  It could be None.
 You will be given SPEECH_QUALITY, which represents a qualitative description of HOW you speak.
 You will be given PERSONALITY_QUALITY, which represents a qualitative description of HOW you are, and your tendencies to behave certain ways. 
 You will also be given your rationale (RATIONALE), which is your internal thoughts about what you should do.
@@ -39,6 +34,9 @@ If oversharing is present, strip out the extra information about intentions and 
     "I shall engage in the exchange of cards, seeking to acquire new knowledge and strengthen my position." -> "I shall exchange cards with my Ambadassador..."
     
 - No need to remove jokes, or what seems like it could be oversharing for subterfuge, or just character-text.  Just make sure it matches the stated RATIONALE, SPEECH_QUALITY, and PERSONALITY_QUALITY.
+- Remove any references to body language or other non-verbal communication.  You should only respond with textual dialogue that your character will speak.
+__ When your chosen "action" is None, like a passed Challenge, describe PASSING instead of declaring your intent. __
+__ Do not say what your cards are, unless it is a seriously convoluted double/triple-bluff. __
 
 If the DIALOGUE is OK how it was originally, you can just respond with the original DIALOGUE.  You should only send me back text which represents the old (if unaltered) or altered new DIALOGUE. 
 """,
@@ -48,7 +46,7 @@ If the DIALOGUE is OK how it was originally, you can just respond with the origi
     )
 
     return (
-            prompt | ChatOpenAI(openai_api_key=f"{openai_api_key}") | StrOutputParser()
+            prompt | create_llm() | StrOutputParser()
     )
 
 

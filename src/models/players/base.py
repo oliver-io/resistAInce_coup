@@ -88,6 +88,17 @@ class BasePlayer(BaseModel, ABC):
         pass
 
     @abstractmethod
+    def determine_chat(
+            self,
+            actor: "BasePlayer",
+            event_to_chat_about: str,
+            past_events: Optional[List[str]],
+            modifier: Optional[float]
+    ) -> Optional[str]:
+        """Choose whether to chat about the current event"""
+        pass
+
+    @abstractmethod
     def determine_counter(
             self,
             actor: "BasePlayer",
@@ -100,11 +111,11 @@ class BasePlayer(BaseModel, ABC):
         pass
 
     @abstractmethod
-    def remove_card(self) -> str:
+    def remove_card(self, past_events: List[str]) -> str:
         """Choose a card and remove it from your hand"""
         pass
 
     @abstractmethod
-    def choose_exchange_cards(self, exchange_cards: list[Card]) -> Tuple[Card, Card]:
+    def choose_exchange_cards(self, exchange_cards: list[Card], current_events: List[str]) -> Tuple[Card, Card]:
         """Perform the exchange action. Pick which 2 cards to send back to the deck"""
         pass

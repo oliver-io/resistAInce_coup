@@ -12,24 +12,27 @@ openai_api_key = os.getenv("OPENAI_API_KEY")
 
 
 # a function which returns a RunnableSerializable given a name parameter:
-def create_game_state_chooser(name: str) -> RunnableSerializable:
+def create_game_state_contester_chooser(name: str) -> RunnableSerializable:
     chooser_prompt = ChatPromptTemplate.from_messages(
         [
             (
                 "system",
                 f"""You are an AI-powered player in the game `The Resistance: Coup`.
 Your name is {name}.
+It is NOT your turn, but you have the opportunity to contest a move (with a challenge, or counter) that another player has made.
+This move might TARGET you.
 
 You will be given CHARACTER_QUALITY, which represents a qualitative description of HOW you should behave-- like thought & speech roleplay. 
 You will be given a detailed analysis (DETAILED_ANALYSIS) of the current state of the game.
+You will also be given an ACTOR, which is the player who is currently acting.
 You will also be given your rationale (RATIONALE), which is your internal thoughts about what you should do.
 You will also be given a list of legal actions (LEGAL_ACTIONS) from which you could pick.
 
 You should RESPOND with JSON describing three properties, which are described in the value fields below::
 ```json 
-    "action": "one of the items from the list of LEGAL_ACTIONS, which constrains what you can do according to the rules.  Maybe None, if the decision is to challenge or block.",
-    "dialogue": "dialogue text, which should be a phrase, made of one or two short sentences, which contains maybe lies and bluffs, declaring what you will do (including when None).  Feel free to ham it up...",
-    "target": "one of the PLAYERS that you are targeting with your action.  If there is no target (such as in "Income" or "Foreign Aid"), just use the string "None"
+    "action": "one of the options from LEGAL_ACTIONS, which will always contain `None`, which is to thought of as NOT contesting",
+    "dialogue": "textual dialogue; something that you might want to say about the current situation, or None if you do not want to comment",
+    "target": "optionally, the player to whom you want to direct the `dialogue`"
 ```
 
 
@@ -37,10 +40,6 @@ Remember:
 - Your "dialogue" should be based on your internal RATIONALE, but it should not openly declare that RATIONALE.
 - Seek to influence others' thoughts about your own gameplay; this is a game of bluffing and informational maneuvering.
 - Do not tell other people (in "dialogue") your internal RATIONALE, just tell them what you want them to know.  Try to keep it brief.
-- "Income" cannot be blocked.  It is not associated with a card.  It is not a "Duke" power.
-- "Foreign Aid" is not a card-associated move.  It can be blocked by certain cards.  It is not a "Duke" power.
-- "Tax" is the "Duke" power. Dukes can block "Foreign Aid".  They CANNOT block "Steal".
-- "Ambassador" can block "Steal."  They can also exchange cards.
 - Exchanging switches two cards by default, but only one if you currently hold a single card.
 
 WARNING:
@@ -66,7 +65,7 @@ __ Please only respond with valid JSON (or an error description in plain text). 
             chooser_prompt | ChatOpenAI(openai_api_key=openai_api_key) | output_parser
     )
 
-def chooser_template(traits: AICharacterTraits, game_analysis: str, allowed_actions: List[str], rationale: str, last_dialogue: Optional[List[str]]) -> str:
+def contester_chooser_template(traits: AICharacterTraits, game_analysis: str, actor: str, action: str, allowed_actions: List[str], rationale: str, last_dialogue: Optional[List[str]]) -> str:
     return f"""
 ```CHARACTER_QUALITY
 - Personality: You {traits.personality_trait}
@@ -75,6 +74,14 @@ def chooser_template(traits: AICharacterTraits, game_analysis: str, allowed_acti
     
 ```DETAILED_ANALYSIS
 {game_analysis}
+```
+
+```ACTOR
+{rationale}
+```
+
+```ACTION
+{rationale}
 ```
 
 ```LEGAL_ACTIONS

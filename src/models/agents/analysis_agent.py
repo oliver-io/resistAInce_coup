@@ -1,13 +1,9 @@
-import os
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnableSerializable
-from langchain_openai import ChatOpenAI
 
+from src.models.agents.llm_client_factory import create_llm
 from src.models.traits import AICharacterTraits
-
-openai_api_key = os.getenv("OPENAI_API_KEY")
-
 
 # a function which returns a RunnableSerializable given a name parameter:
 def create_game_state_analyzer(name: str) -> RunnableSerializable:
@@ -41,7 +37,7 @@ Please remember these hints:
     )
 
     return (
-            analyzer_prompt | ChatOpenAI(openai_api_key=f"{openai_api_key}") | StrOutputParser()
+            analyzer_prompt | create_llm() | StrOutputParser()
     )
 
 

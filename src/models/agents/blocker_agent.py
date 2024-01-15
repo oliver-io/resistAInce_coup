@@ -4,11 +4,9 @@ from typing import Optional, List
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnableSerializable
-from langchain_openai import ChatOpenAI
 
+from src.models.agents.llm_client_factory import create_llm
 from src.models.traits import AICharacterTraits
-
-openai_api_key = os.getenv("OPENAI_API_KEY")
 
 # a function which returns a RunnableSerializable given a name parameter:
 def create_game_state_blocker(name: str) -> RunnableSerializable:
@@ -45,10 +43,12 @@ If you cannot decide on a rationale, you should respond with "ERROR: ..." with s
     )
 
     return (
-            prompt | ChatOpenAI(openai_api_key=f"{openai_api_key}") | StrOutputParser()
+            prompt | create_llm() | StrOutputParser()
     )
 
-def blocker_template(traits: AICharacterTraits, game_analysis: str, actor: str, cards: List[str], target: Optional[str] = None, conversation: Optional[List[str]] = None) -> str:
+
+def blocker_template(traits: AICharacterTraits, game_analysis: str, actor: str, cards: List[str],
+                     target: Optional[str] = None, conversation: Optional[List[str]] = None) -> str:
     return f"""
 ```CHARACTER_QUALITY
 - Personality: You {traits.personality_trait}
@@ -76,4 +76,3 @@ def blocker_template(traits: AICharacterTraits, game_analysis: str, actor: str, 
 ```
 
 """
-

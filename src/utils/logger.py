@@ -1,4 +1,5 @@
 import logging
+import os
 import sys
 
 default_log_level = logging.ERROR

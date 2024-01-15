@@ -1,14 +1,11 @@
-import os
 from typing import List, Optional
 
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnableSerializable
-from langchain_openai import ChatOpenAI
 
+from src.models.agents.llm_client_factory import create_llm
 from src.models.traits import AICharacterTraits
-
-openai_api_key = os.getenv("OPENAI_API_KEY")
 
 
 # a function which returns a RunnableSerializable given a name parameter:
@@ -40,11 +37,12 @@ If you cannot decide on a RATIONALE, you should respond with "ERROR: ..." with s
     )
 
     return (
-            prompt | ChatOpenAI(openai_api_key=f"{openai_api_key}") | StrOutputParser()
+            prompt | create_llm() | StrOutputParser()
     )
 
 
-def rationale_template(traits: AICharacterTraits, game_analysis: str, allowed_actions: List[str], last_dialogue: Optional[List[str]] = None):
+def rationale_template(traits: AICharacterTraits, game_analysis: str, allowed_actions: List[str],
+                       last_dialogue: Optional[List[str]] = None):
     return f"""
 ```QUALITY
 You reason like a person that is {traits.get_traits()['rationalization_trait']}

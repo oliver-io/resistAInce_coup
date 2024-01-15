@@ -1,14 +1,12 @@
-import os
 from typing import Optional, List
 
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnableSerializable
-from langchain_openai import ChatOpenAI
 
+from src.models.agents.llm_client_factory import create_llm
 from src.models.traits import AICharacterTraits
 
-openai_api_key = os.getenv("OPENAI_API_KEY")
 
 # a function which returns a RunnableSerializable given a name parameter:
 def create_game_state_challenger(name: str) -> RunnableSerializable:
@@ -34,6 +32,8 @@ You should be more hesitant to challenge if you have fewer cards, or if the acti
 
 If the action does target you, you should take the threat more seriously.
 
+This rationale should be a summary of whether or not you want to CHALLENGE.
+
 If you cannot decide on a rationale, you should respond with "ERROR: ..." with some explanation for why you cannot create a RATIONALE.
 """,
             ),
@@ -42,10 +42,12 @@ If you cannot decide on a rationale, you should respond with "ERROR: ..." with s
     )
 
     return (
-            prompt | ChatOpenAI(openai_api_key=f"{openai_api_key}") | StrOutputParser()
+            prompt | create_llm() | StrOutputParser()
     )
 
-def challenger_template(traits: AICharacterTraits, game_analysis: str, actor: str, target: Optional[str] = None, conversation: Optional[List[str]] = None) -> str:
+
+def challenger_template(traits: AICharacterTraits, game_analysis: str, actor: str, target: Optional[str] = None,
+                        conversation: Optional[List[str]] = None) -> str:
     return f"""
 ```CHARACTER_QUALITY
 - Personality: You {traits.personality_trait}
@@ -68,4 +70,3 @@ def challenger_template(traits: AICharacterTraits, game_analysis: str, actor: st
 {conversation}
 ```
 """
-
