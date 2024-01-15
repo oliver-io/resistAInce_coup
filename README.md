@@ -54,6 +54,7 @@ python coup.py
 
 
 # How work?
+
 Currently, the flow is pretty simple, made up from a few different chains of OpenAI conversations:
 
 - Each player takes in the state of the board and forms an "analysis" which is a summary of the current game-state.  They might be fed past dialogue as part of this state.
@@ -65,6 +66,10 @@ Caveat:
 - Many of the above steps are actually multi-agent composition steps, which are feeding into one another (including AI-to-AI interactions mid-round).
 
 ![diagram.png](./assets/diagram.png)
+
+# Bugs?
+
+Yeah, they exist-- the AI is not perfect.  Luckily there is conceptual boundaries drawn between the game engine and reasoning engines, and to my knowledge, it is not possible for the game state to evolve in a way that breaks the rules of The Resistance: Coup; it may be the case that speech or rationale can break the coherence of the AI agent engine's reasoning.
 
 
 # Some Notes
