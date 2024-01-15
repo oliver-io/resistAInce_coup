@@ -23,8 +23,6 @@ Keep reading for instructions on how to watch the wheelings-and-dealings of thes
 sudo apt update
 sudo apt upgrade
 
-# Required if ya aren't already running >= 3.11
-sudo apt install python3.11-venv
 # Maybe required if ya aren't already running >= 3.11
 sudo add-apt-repository ppa:deadsnakes/ppa
 sudo apt install python3.11-venv
@@ -48,6 +46,8 @@ poetry install
 > Run the Game
 ```bash
 python coup.py  
+#or:
+./run.sh
 ```
 
 :rocket:
