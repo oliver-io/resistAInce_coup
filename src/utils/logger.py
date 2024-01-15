@@ -23,7 +23,7 @@ def setup_logger(name: str, log_file: str, level: int = default_log_level):
 
     # Create a file handler that logs messages to a file
     file_handler = logging.FileHandler(log_file)
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
     file_handler.setFormatter(formatter)
 
     # Create a stream handler that logs messages to stdout

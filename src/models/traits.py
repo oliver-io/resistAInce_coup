@@ -34,7 +34,7 @@ rationalization_traits = [
     "trusting your gut over logic",
     "feeling like you're the protagonist of a movie",
     "suspicious of every coincidence",
-    "considering yourself a master strategist"
+    "considering yourself a master strategist",
 ]
 
 personality_traits = [
@@ -72,7 +72,7 @@ personality_traits = [
     "are the optimist, never give up hope in the game",
     "are the prankster, always adding a twist of humor to the game",
     "are the strategist, always looking three moves ahead",
-    "are the chameleon, adept at adapting to any game style"
+    "are the chameleon, adept at adapting to any game style",
 ]
 
 speech_traits = [
@@ -107,8 +107,9 @@ speech_traits = [
     "tend to use slang and colloquialisms a lot",
     "speak in a very enthusiastic and energetic way",
     "tend to be very sarcastic in your speech",
-    "speak in a calming, soothing manner"
+    "speak in a calming, soothing manner",
 ]
+
 
 class MyConfig:
     validate_assignment = False
@@ -120,6 +121,7 @@ class AICharacterTraits:
     personality_trait: str = None
     speech_trait: str = None
     chattiness: float = None
+
     def __post_init__(self):
         self.rationalization_trait = random.choice(rationalization_traits)
         self.personality_trait = random.choice(personality_traits)
@@ -128,7 +130,7 @@ class AICharacterTraits:
 
     def get_traits(self):
         return {
-            'rationalization_trait': self.rationalization_trait,
-            'personality_trait': self.personality_trait,
-            'speech_trait': self.speech_trait
+            "rationalization_trait": self.rationalization_trait,
+            "personality_trait": self.personality_trait,
+            "speech_trait": self.speech_trait,
         }

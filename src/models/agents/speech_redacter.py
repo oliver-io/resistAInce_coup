@@ -33,12 +33,12 @@ If the DIALOGUE is OK how it was originally, you can just respond with the origi
         ]
     )
 
-    return (
-            prompt | create_llm() | StrOutputParser()
-    )
+    return prompt | create_llm() | StrOutputParser()
 
 
-def speech_redacter_template(traits: AICharacterTraits, action: str, rationale: str, attempted_dialogue: str):
+def speech_redacter_template(
+    traits: AICharacterTraits, action: str, rationale: str, attempted_dialogue: str
+):
     return f"""
     
 ```ACTION

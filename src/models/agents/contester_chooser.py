@@ -1,14 +1,11 @@
-import os
 from typing import List, Optional
 
 from langchain.output_parsers import ResponseSchema, StructuredOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnableSerializable
-from langchain_openai import ChatOpenAI
 
+from src.models.agents.llm_client_factory import create_llm
 from src.models.traits import AICharacterTraits
-
-openai_api_key = os.getenv("OPENAI_API_KEY")
 
 
 # a function which returns a RunnableSerializable given a name parameter:
@@ -56,16 +53,21 @@ __ Please only respond with valid JSON (or an error description in plain text). 
         ResponseSchema(
             name="action", description="one of the LEGAL_ACTIONS matching your declared intent"
         ),
-        ResponseSchema(
-            name="target", description="the target or None"
-        ),
+        ResponseSchema(name="target", description="the target or None"),
     ]
     output_parser = StructuredOutputParser.from_response_schemas(response_schemas)
-    return (
-            chooser_prompt | ChatOpenAI(openai_api_key=openai_api_key) | output_parser
-    )
+    return chooser_prompt | create_llm() | output_parser
 
-def contester_chooser_template(traits: AICharacterTraits, game_analysis: str, actor: str, action: str, allowed_actions: List[str], rationale: str, last_dialogue: Optional[List[str]]) -> str:
+
+def contester_chooser_template(
+    traits: AICharacterTraits,
+    game_analysis: str,
+    actor: str,
+    action: str,
+    allowed_actions: List[str],
+    rationale: str,
+    last_dialogue: Optional[List[str]],
+) -> str:
     return f"""
 ```CHARACTER_QUALITY
 - Personality: You {traits.personality_trait}
@@ -93,4 +95,3 @@ def contester_chooser_template(traits: AICharacterTraits, game_analysis: str, ac
 ```
 
 """
-

@@ -15,10 +15,10 @@ class AIPlayer(BasePlayer):
     is_ai: bool = True
 
     def choose_action(
-            self,
-            other_players: List[BasePlayer],
-            state: str,
-            last_round_dialogue: Optional[List[str]] = None
+        self,
+        other_players: List[BasePlayer],
+        state: str,
+        last_round_dialogue: Optional[List[str]] = None,
     ) -> Tuple[Action, Optional[BasePlayer], Optional[str]]:
         """Choose the next action to perform"""
 
@@ -49,7 +49,9 @@ class AIPlayer(BasePlayer):
                         chosen_action = action
 
                 if chosen_action is None:
-                    available_actions_str = ", ".join([action.action_type for action in available_actions])
+                    available_actions_str = ", ".join(
+                        [action.action_type for action in available_actions]
+                    )
                     app_logger.error(f"Bad action choice {chosen_action} for available actions")
                     app_logger.error(f"Available actions: {available_actions_str}")
                     app_logger.error(f"Extracted action: {extracted_action}")
@@ -100,12 +102,12 @@ class AIPlayer(BasePlayer):
         return chosen_action, chosen_target, headless_speech
 
     def determine_challenge(
-            self,
-            actor: BasePlayer,
-            target_player: Optional["BasePlayer"],
-            action: Union[Action, CounterAction],
-            state: str,
-            dialogue_so_far: Optional[List[str]],
+        self,
+        actor: BasePlayer,
+        target_player: Optional["BasePlayer"],
+        action: Union[Action, CounterAction],
+        state: str,
+        dialogue_so_far: Optional[List[str]],
     ) -> Tuple[bool, Optional[str]]:
         """Choose whether to challenge the current player"""
         if target_player is None:
@@ -138,12 +140,12 @@ class AIPlayer(BasePlayer):
         return (action == "Challenge"), headless_speech
 
     def determine_counter(
-            self,
-            actor: BasePlayer,
-            target_player: Optional["BasePlayer"],
-            action: Action,
-            state: str,
-            dialogue_so_far: Optional[List[str]],
+        self,
+        actor: BasePlayer,
+        target_player: Optional["BasePlayer"],
+        action: Action,
+        state: str,
+        dialogue_so_far: Optional[List[str]],
     ) -> Tuple[bool, Optional[str]]:
         """Choose whether to counter/block the current player's action"""
         if target_player is None:
@@ -174,18 +176,16 @@ class AIPlayer(BasePlayer):
         return (action == "Block"), headless_speech
 
     def determine_chat(
-            self,
-            actor: "BasePlayer",
-            event_to_chat_about: str,
-            past_events: Optional[List[str]],
-            modifier: Optional[float] = 1
+        self,
+        actor: "BasePlayer",
+        event_to_chat_about: str,
+        past_events: Optional[List[str]],
+        modifier: Optional[float] = 1,
     ) -> Optional[str]:
         """Choose whether to chat about the current event"""
         if self.ai_agent.check_chat():
             speech = self.ai_agent.chat(
-                actor=actor,
-                event_to_chat_about=event_to_chat_about,
-                past_events=past_events
+                actor=actor, event_to_chat_about=event_to_chat_about, past_events=past_events
             )
 
             headless_speech = f'{self.name} says "{speech}"'
@@ -204,12 +204,16 @@ class AIPlayer(BasePlayer):
             )
 
             for possible_target in self.cards:
-                app_logger.debug(f"Comparing: {str(possible_target).lower()}, {target_discard.lower()}")
+                app_logger.debug(
+                    f"Comparing: {str(possible_target).lower()}, {target_discard.lower()}"
+                )
                 if str(possible_target).lower() == target_discard.lower():
                     target_card = possible_target
                     break
             if target_card is None:
-                app_logger.warn(f"AI {self.name} tried to discard {target_discard}, but they don't have that card")
+                app_logger.warn(
+                    f"AI {self.name} tried to discard {target_discard}, but they don't have that card"
+                )
 
         # TODO: run this through the chooser model, should work with fake actions like "DISCARD_ASSASSIN"
         # Remove a random card
@@ -217,7 +221,9 @@ class AIPlayer(BasePlayer):
         print_texts(f"{self} discards their ", (f"{discarded_card}", discarded_card.style), " card")
         return f"{discarded_card}"
 
-    def choose_exchange_cards(self, exchange_cards: list[Card], past_events: List[str]) -> Tuple[Card, Card]:
+    def choose_exchange_cards(
+        self, exchange_cards: list[Card], past_events: List[str]
+    ) -> Tuple[Card, Card]:
         """Perform the exchange action. Pick which 2 cards to send back to the deck"""
         # TODO: seems like this probably needs its own agent
         self.cards += exchange_cards
@@ -235,7 +241,9 @@ class AIPlayer(BasePlayer):
                     target_card_a = possible_target
                     break
             if target_card_a is None:
-                app_logger.warn(f"AI {self.name} tried to discard {target_discard} (1), but they don't have that card")
+                app_logger.warn(
+                    f"AI {self.name} tried to discard {target_discard} (1), but they don't have that card"
+                )
 
         discard_a = self.cards.pop(self.cards.index(target_card_a))
 
@@ -250,7 +258,9 @@ class AIPlayer(BasePlayer):
                     target_card_b = possible_target
                     break
             if target_card_b is None:
-                app_logger.warn(f"AI {self.name} tried to discard {target_discard} (2), but they don't have that card")
+                app_logger.warn(
+                    f"AI {self.name} tried to discard {target_discard} (2), but they don't have that card"
+                )
 
         print_text(f"{self} exchanges 2 cards")
         return discard_a, self.cards.pop(self.cards.index(target_card_b))

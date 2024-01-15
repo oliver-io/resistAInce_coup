@@ -32,16 +32,11 @@ Please just output the names of the card you want to discard.  Try to pick the o
         ]
     )
 
-    return (
-            prompt | create_llm() | StrOutputParser()
-    )
+    return prompt | create_llm() | StrOutputParser()
 
 
 def discarder_template(
-        traits: AICharacterTraits,
-        last_rationale: str,
-        past_events: list[str],
-        cards: list[str]
+    traits: AICharacterTraits, last_rationale: str, past_events: list[str], cards: list[str]
 ):
     return f"""
 

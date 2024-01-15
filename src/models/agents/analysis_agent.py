@@ -36,13 +36,12 @@ Please remember these hints:
         ]
     )
 
-    return (
-            analyzer_prompt | create_llm() | StrOutputParser()
-    )
+    return analyzer_prompt | create_llm() | StrOutputParser()
 
 
-
-def analyzer_template(traits: AICharacterTraits, game_state_summary: str, last_round_dialogue: str) -> str:
+def analyzer_template(
+    traits: AICharacterTraits, game_state_summary: str, last_round_dialogue: str
+) -> str:
     # at least for now game_state_summary comes padded in its own ticks
     return f"""
 {game_state_summary}

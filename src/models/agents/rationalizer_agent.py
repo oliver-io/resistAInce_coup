@@ -36,13 +36,15 @@ If you cannot decide on a RATIONALE, you should respond with "ERROR: ..." with s
         ]
     )
 
-    return (
-            prompt | create_llm() | StrOutputParser()
-    )
+    return prompt | create_llm() | StrOutputParser()
 
 
-def rationale_template(traits: AICharacterTraits, game_analysis: str, allowed_actions: List[str],
-                       last_dialogue: Optional[List[str]] = None):
+def rationale_template(
+    traits: AICharacterTraits,
+    game_analysis: str,
+    allowed_actions: List[str],
+    last_dialogue: Optional[List[str]] = None,
+):
     return f"""
 ```QUALITY
 You reason like a person that is {traits.get_traits()['rationalization_trait']}

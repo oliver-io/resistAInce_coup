@@ -41,13 +41,16 @@ If you cannot decide on a rationale, you should respond with "ERROR: ..." with s
         ]
     )
 
-    return (
-            prompt | create_llm() | StrOutputParser()
-    )
+    return prompt | create_llm() | StrOutputParser()
 
 
-def challenger_template(traits: AICharacterTraits, game_analysis: str, actor: str, target: Optional[str] = None,
-                        conversation: Optional[List[str]] = None) -> str:
+def challenger_template(
+    traits: AICharacterTraits,
+    game_analysis: str,
+    actor: str,
+    target: Optional[str] = None,
+    conversation: Optional[List[str]] = None,
+) -> str:
     return f"""
 ```CHARACTER_QUALITY
 - Personality: You {traits.personality_trait}

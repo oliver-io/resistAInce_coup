@@ -37,16 +37,11 @@ Just output dialogue text as your character would speak, without any other forma
         ]
     )
 
-    return (
-            prompt | create_llm() | StrOutputParser()
-    )
+    return prompt | create_llm() | StrOutputParser()
 
 
 def chatter_template(
-        traits: AICharacterTraits,
-        last_rationale: str,
-        event_to_chat_about: str,
-        past_events=list[str]
+    traits: AICharacterTraits, last_rationale: str, event_to_chat_about: str, past_events=list[str]
 ):
     return f"""
     
