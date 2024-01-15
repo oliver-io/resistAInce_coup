@@ -21,7 +21,7 @@ You will also be given your rationale (RATIONALE), which is your internal though
 You will also be given past events (EVENTS) which just transpired.
 Finally you will be given a subject (SUBJECT) on which you should comment.
 
-Your job is to comment on the current subject.
+Your job is to comment on the current subject.  You should NOT declare your move-- this should be an extraneous comment that does not declare game-actions, but merely offers commentary on the current situation.
 
 Remember: 
 - DO NOT say what you will do on your turn, or declare what you are about to do on your next turn, unless it's some kind of super crazy quadruple metabluff.  Just in pace with the EVENTS.

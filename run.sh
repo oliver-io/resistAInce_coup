@@ -1,4 +1,4 @@
-source ../python3.11/bin/activate
+source ./env/bin/activate
 export AI_CHATINESS=.5
 export SEE_AI_RATIONALE=1
 export SEE_AI_THOUGHTS=1

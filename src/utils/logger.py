@@ -2,7 +2,7 @@ import logging
 import os
 import sys
 
-default_log_level = logging.ERROR
+default_log_level = logging.DEBUG
 
 
 def setup_logger(name: str, log_file: str, level: int = default_log_level):
